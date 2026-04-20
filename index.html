@@ -3,570 +3,401 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>kagancapar@io:~$</title>
-<meta name="description" content="Kağan Çapar - binary exploitation, vulnerability research, shellcode development.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2214%22 font-size=%2214%22>%E2%96%88</text></svg>">
+<title>$kagancapar@io:~$ ==1337==ERROR: AddressSanitizer</title>
 <style>
   :root {
-    --bg: #050505;
-    --panel: #0a0e0a;
-    --fg: #00ff41;
-    --dim: #00aa2b;
-    --dark: #006619;
-    --amber: #ffb000;
-    --red: #ff3333;
-    --link: #5cf;
-    --cyan: #00e6ff;
-    --magenta: #ff5cf2;
+    --bg: #0c0c0c;
+    --fg: #cccccc;
+    --dim: #888888;
+    --gray: #666666;
+    --white: #ffffff;
+    --green: #4eda4e;
+    --teal: #19c1c1;
+    --cyan: #00ffff;
+    --red: #f53535;
+    --pink: #ff8fbf;
+    --magenta: #d8168c;
+    --amber: #d7c441;
+    --orange: #d97a1a;
+    --blue: #5b8af0;
+    --link: #19c1c1;
   }
   * { box-sizing: border-box; }
   html, body {
-    margin: 0;
-    padding: 0;
-    background: #000;
+    margin: 0; padding: 0;
+    background: var(--bg);
     color: var(--fg);
-    font-family: "Courier New", "Lucida Console", Consolas, monospace;
-    font-size: 14px;
-    line-height: 1.4;
+    font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.38;
     height: 100vh;
     overflow: hidden;
   }
-  body {
-    display: flex;
-    align-items: stretch;
-    justify-content: stretch;
-    padding: 8px;
-  }
   body::before {
     content: "";
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: repeating-linear-gradient(0deg,
-      rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px,
-      rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px);
-    pointer-events: none;
-    z-index: 100;
+      rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0.13) 3px, rgba(0,0,0,0.13) 4px);
+    pointer-events: none; z-index: 100;
   }
   body::after {
     content: "";
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6) 100%);
-    pointer-events: none;
-    z-index: 99;
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.55) 100%);
+    pointer-events: none; z-index: 99;
   }
-
-  /* === TERMINAL WINDOW CHROME === */
-  .term {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--dim);
-    background: var(--panel);
-    box-shadow: 0 0 30px rgba(0,255,65,0.12), inset 0 0 60px rgba(0,40,15,0.4);
-    min-height: 0;
-  }
-  .term-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(to bottom, #0a1a0a, #050a05);
-    border-bottom: 1px solid var(--dim);
-    padding: 4px 10px;
-    font-size: 12px;
-    color: var(--dim);
-    user-select: none;
-  }
-  .term-bar .title { color: var(--amber); }
-  .term-bar .btns { display: flex; gap: 8px; }
-  .term-bar .btn {
-    width: 12px; height: 12px;
-    border-radius: 50%;
-    border: 1px solid #333;
-    background: #1a1a1a;
-  }
-  .term-bar .btn.r { background: #4a1a1a; }
-  .term-bar .btn.y { background: #4a3a1a; }
-  .term-bar .btn.g { background: #1a4a2a; }
-
-  .term-body {
-    flex: 1;
+  .scroll {
+    height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 10px 14px 4px;
-    text-shadow: 0 0 4px rgba(0,255,65,0.4);
+    padding: 8px 14px;
     scrollbar-width: thin;
-    scrollbar-color: var(--dim) var(--panel);
+    scrollbar-color: #333 var(--bg);
   }
-  .term-body::-webkit-scrollbar { width: 8px; }
-  .term-body::-webkit-scrollbar-track { background: var(--panel); }
-  .term-body::-webkit-scrollbar-thumb { background: var(--dark); border: 1px solid var(--panel); }
+  .scroll::-webkit-scrollbar { width: 8px; }
+  .scroll::-webkit-scrollbar-track { background: var(--bg); }
+  .scroll::-webkit-scrollbar-thumb { background: #2a2a2a; }
 
-  /* === BANNER === */
-  pre.banner {
-    margin: 0 0 6px;
-    color: var(--fg);
-    font-size: 13px;
-    line-height: 1.05;
-    white-space: pre;
-    overflow: hidden;
-  }
-  pre.banner .cyan { color: var(--cyan); text-shadow: 0 0 8px rgba(0,230,255,0.7); }
-  pre.banner .bin  { color: #3a7ad6; font-size: 11px; }
-  pre.banner .sub  { color: var(--dim); font-size: 11px; }
-  pre.banner .b-o  { color: #d97a1a; }
-  pre.banner .b-m  { color: #c026a8; }
-  pre.banner .b-p  { color: #ff8fbf; }
-  pre.banner .b-w  { color: #e8e8e8; }
-  pre.banner .b-c  { color: #00e6ff; }
-  pre.banner .b-y  { color: #ffd000; }
+  pre, .term { margin: 0; white-space: pre-wrap; word-break: keep-all; font-family: inherit; font-size: inherit; line-height: inherit; }
+  .term > div { white-space: pre-wrap; }
 
-  /* === LINES === */
-  .line { white-space: pre-wrap; word-break: break-word; margin: 0; }
-  .out  { color: var(--fg); }
-  .dim  { color: var(--dim); }
-  .err  { color: var(--red); }
-  .info { color: var(--amber); }
-  .ok   { color: var(--cyan); }
-  .cve  { color: var(--red); font-weight: bold; text-shadow: 0 0 4px rgba(255,51,51,0.5); }
-  .star { color: var(--amber); }
-  .key  { color: var(--amber); }
-  .cmd  { color: var(--cyan); }
+  .user { color: var(--green); }
+  .at   { color: var(--white); }
+  .host { color: var(--green); }
+  .path { color: var(--blue); font-weight: bold; }
+  .dollar { color: var(--white); }
+  .prompt { color: var(--green); }
 
-  a {
-    color: var(--link);
-    text-decoration: none;
-    border-bottom: 1px dotted var(--link);
-  }
-  a:hover { color: #000; background: var(--link); }
+  .err     { color: var(--red); font-weight: bold; }
+  .summary-tag { color: var(--white); font-weight: bold; }
+  .here    { color: var(--green); }
+  .addr    { color: var(--amber); }
+  .num     { color: var(--amber); }
+  .src     { color: var(--blue); }
+  .name    { color: var(--white); }
+  .info    { color: var(--cyan); }
+  .red     { color: var(--red); font-weight: bold; }
+  .star    { color: var(--amber); }
+  .com     { color: var(--gray); font-style: italic; }
+  .lbl     { color: var(--cyan); }
+  .val     { color: var(--green); }
+  .frame-num { color: var(--gray); }
+  .arrow { color: var(--green); font-weight: bold; }
+  .equals { color: var(--green); font-weight: bold; }
+  .typed { color: var(--green); }
 
-  /* === PROMPT LINE === */
-  .prompt-line {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: 2px;
+  .sb-fa { color: var(--red); }
+  .sb-00 { color: var(--green); }
+  .sb-01 { color: var(--pink); font-weight: bold; }
+  .sb-fd { color: var(--magenta); }
+  .hl-byte {
+    background: rgba(255, 143, 191, 0.18);
+    padding: 0 2px;
   }
-  .ps1 {
-    color: var(--cyan);
-    text-shadow: 0 0 6px rgba(0,230,255,0.6);
-    white-space: nowrap;
-  }
-  .ps1 .user { color: var(--fg); }
-  .ps1 .at   { color: var(--dim); }
-  .ps1 .host { color: var(--amber); }
-  .ps1 .colon{ color: var(--dim); }
-  .ps1 .path { color: var(--cyan); }
-  .ps1 .dollar { color: var(--fg); }
-  .input-area {
-    flex: 1;
-    color: var(--fg);
-    outline: none;
-    background: transparent;
-    border: 0;
-    font: inherit;
-    caret-color: transparent;
-    padding: 0;
-  }
-  .typed { color: var(--fg); }
+
+  a { color: var(--link); text-decoration: none; border-bottom: 1px dotted var(--link); }
+  a:hover { background: var(--link); color: var(--bg); }
+
   .cursor {
     display: inline-block;
-    width: 8px;
-    height: 14px;
-    background: var(--fg);
+    width: 8px; height: 14px;
+    background: var(--white);
     vertical-align: text-bottom;
-    box-shadow: 0 0 8px var(--fg);
-    animation: blink 1s steps(2) infinite;
+    box-shadow: 0 0 6px var(--white);
+    animation: bl 1s steps(2) infinite;
+    margin-left: 1px;
   }
-  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes bl { 50% { opacity: 0; } }
 
-  ::selection { background: var(--fg); color: #000; }
-
-  .help-row { display: grid; grid-template-columns: 130px 1fr; gap: 6px; }
+  .help-row { display: grid; grid-template-columns: 110px 1fr; gap: 6px; }
   .help-row .k { color: var(--cyan); }
 
-  .ls-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0 16px;
-  }
-  .ls-grid .f { color: var(--cyan); }
-  .ls-grid .d { color: var(--amber); }
-  .ls-grid .x { color: var(--red); }
-
-  /* status bar */
-  .status {
-    display: flex;
-    justify-content: space-between;
-    border-top: 1px solid var(--dark);
-    padding: 3px 10px;
-    font-size: 11px;
-    color: var(--dim);
-    background: #050a05;
-    user-select: none;
-  }
-  .status .right span { margin-left: 12px; }
-  .status .key { color: var(--amber); }
+  ::selection { background: var(--green); color: var(--bg); }
 </style>
 </head>
 <body>
 
-<div class="term">
-  <div class="term-bar">
-    <div class="btns">
-      <span class="btn r"></span><span class="btn y"></span><span class="btn g"></span>
-    </div>
-    <div class="title">kagancapar@io: ~ &mdash; /bin/bash &mdash; 80x24</div>
-    <div class="dim">tty1</div>
-  </div>
-
-  <div class="term-body" id="term">
-    <!-- banner + boot output injected here -->
-  </div>
-
-  <div class="status">
-    <div>tty1 · UTF-8 · 0x7fffffff</div>
-    <div class="right">
-      <span><span class="key">help</span> for commands</span>
-      <span><span class="key">↑↓</span> history</span>
-      <span><span class="key">tab</span> complete</span>
-    </div>
-  </div>
+<div class="scroll" id="scroll">
+  <div class="term" id="term"></div>
 </div>
 
-<template id="banner-tpl"><pre class="banner"><span class="bin">01101011 01100001 01100111 01100001 01101110 00101110 01100011 01100001 01110000 01100001 01110010</span>
-<span class="cyan">┬┌─┌─┐┌─┐┌─┐┌┐┌  ┌─┐┌─┐┌─┐┌─┐┬─┐
-├┴┐├─┤│ ┬├─┤│││  │  ├─┤├─┘├─┤├┬┘
-┴ ┴┴ ┴└─┘┴ ┴┘└┘  └─┘┴ ┴┴  ┴ ┴┴└─</span>
-<span class="b-o">▆▆▆▆▆▆</span><span class="b-m">▆▆▆▆▆▆</span><span class="b-p">▆▆▆▆▆▆</span><span class="b-w">▆▆▆▆▆▆</span><span class="b-y">▆▆▆▆▆▆</span><span class="b-c">▆▆▆▆▆▆</span><span class="b-p">▆▆▆▆▆▆</span><span class="b-m">▆▆▆▆▆▆</span><span class="b-o">▆▆▆▆▆▆</span>
-<span class="sub">.:: binary exploitation // vulnerability research ::.</span></pre></template>
-
 <script>
-const term = document.getElementById('term');
-const bannerTpl = document.getElementById('banner-tpl');
+const TERM = document.getElementById('term');
+const SCROLL = document.getElementById('scroll');
 
-const PS1 = `<span class="ps1"><span class="user">kagancapar</span><span class="at">@</span><span class="host">io</span><span class="colon">:</span><span class="path">~</span><span class="dollar">$</span></span>`;
+const PS1_HTML =
+  `<span class="user">kagancapar</span><span class="at">@</span><span class="host">io</span>:` +
+  `<span class="path">~</span><span class="dollar">$</span>`;
 
 const HISTORY = [];
 let histIdx = -1;
+let activePrompt = null;
+let buffer = '';
+let lockedInput = false;
 
-function el(html) {
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const padR = (s, n) => String(s ?? '').padEnd(n).slice(0, n);
+const padL = (s, n) => String(s ?? '').padStart(n).slice(0, n);
+
+function append(html) {
   const d = document.createElement('div');
   d.innerHTML = html;
-  return d.firstChild;
+  TERM.appendChild(d);
+  SCROLL.scrollTop = SCROLL.scrollHeight;
 }
 
-function print(html, cls='line out') {
-  const div = document.createElement('div');
-  div.className = cls;
-  div.innerHTML = html;
-  term.appendChild(div);
-  scroll();
-  return div;
+function appendBlock(html) {
+  TERM.insertAdjacentHTML('beforeend', html);
+  SCROLL.scrollTop = SCROLL.scrollHeight;
 }
 
-function printRaw(node) {
-  term.appendChild(node);
-  scroll();
-}
-
-function scroll() {
-  term.scrollTop = term.scrollHeight;
-}
-
-function showBanner() {
-  printRaw(bannerTpl.content.cloneNode(true).firstChild);
-}
-
-const FILES = {
-  'about.txt':
-`Low-level offensive security. Reverse engineering Windows / Linux binaries,
-hunting memory corruption bugs, writing position-independent shellcode,
-turning crashes into exploit primitives.
-
-Public CVEs in compression utilities (7-Zip) and image parsers (gdk-pixbuf).
-Believer in PoC || GTFO.`,
-
-  'cves.txt': null, // handled by cmd
-  'shellcode.txt': null,
-  'contact.txt': null,
-  'README': `kagancapar.github.io
-====================
-type 'help' for available commands.
-type 'ls' to see files.
-type 'cat <file>' to read a file.`,
-  '.bash_history': `whoami
-cves
-shellcode
-cat /etc/shadow      # nope
-sudo rm -rf /        # absolutely not
-gdb -p $(pidof bash)`,
-};
-
-const CVES = [
-  {
-    id: 'CVE-2022-29072', stars: 673, lang: 'HTML',
-    title: '7-Zip privilege escalation & command exec',
-    desc: 'Drag a .7z file into Help>Contents on Windows -> SYSTEM. Patched in 21.07+.',
-    url: 'https://github.com/kagancapar/CVE-2022-29072',
-  },
-  {
-    id: 'CVE-2026-5201', stars: 11, lang: 'C',
-    title: 'gdk-pixbuf JPEG heap-based buffer overflow',
-    desc: 'CWE-122, CVSS 7.5. Triggered by a crafted JPEG via the gdk-pixbuf loader.',
-    url: 'https://github.com/kagancapar/CVE-2026-5201',
-  },
-  {
-    id: '7-Zip PoC', stars: 9, lang: '-',
-    title: '7-Zip malicious code injection',
-    desc: 'WinRAR-style infection PoC — believe it or not :)',
-    url: 'https://github.com/kagancapar/7-zip-malicious-code-vulnerability',
-  },
+// ============ DATA ============
+let liveDisclosures = null;
+const STATIC_DISCLOSURES = [
+  { name: 'CVE-2026-5201',  desc: 'gdk-pixbuf JPEG heap', stars: 11,  url: 'https://github.com/kagancapar/CVE-2026-5201' },
+  { name: 'CVE-2022-29072', desc: '7-Zip privesc',        stars: 673, url: 'https://github.com/kagancapar/CVE-2022-29072' },
+  { name: '7-Zip PoC',      desc: 'malicious code inj',   stars: 9,   url: 'https://github.com/kagancapar/7-zip-malicious-code-vulnerability' },
 ];
 
 const SHELLCODE = [
-  ['disable-aslr-security-shellcode',     'C',   'linux', 6, 'Disables ASLR on Linux at runtime'],
-  ['linux-x64-reverse-tcp-shellcode',     'C',   'linux', 5, 'x86_64 Linux reverse TCP shellcode'],
-  ['linux-enumeration-shellcode',         'C',   'linux', 5, 'Encrypted ELF shellcode wrapping linenum-style enumeration'],
-  ['sudo-enumeration-shellcode',          'C',   'linux', 3, 'Checks running sudo against known public vulnerabilities'],
-  ['windows-x86x64-persistence-shellcode','C',   'win',   7, 'Windows internals persistence — injects into arbitrary host process'],
-  ['windows-x86x64-eventvwr-disable-shellcode','ASM','win',3,'Disables eventvwr-based logging surface on Windows x86/x64'],
+  ['disable_aslr',          'C',   'lin', 6, 'https://github.com/kagancapar/disable-aslr-security-shellcode'],
+  ['linux_x64_reverse_tcp', 'C',   'lin', 5, 'https://github.com/kagancapar/linux-x64-reverse-tcp-shellcode'],
+  ['linux_enumeration',     'C',   'lin', 5, 'https://github.com/kagancapar/linux-enumeration-shellcode'],
+  ['sudo_enumeration',      'C',   'lin', 3, 'https://github.com/kagancapar/sudo-enumeration-shellcode'],
+  ['win_persistence',       'C',   'win', 7, 'https://github.com/kagancapar/windows-x86x64-persistence-shellcode'],
+  ['win_eventvwr_disable',  'ASM', 'win', 3, 'https://github.com/kagancapar/windows-x86x64-eventvwr-disable-shellcode'],
 ];
 
 const CONTACT = [
-  ['github',     'github.com/kagancapar',     'https://github.com/kagancapar'],
-  ['exploit-db', 'exploit-db.com/?author=9507','https://www.exploit-db.com/?author=9507'],
-  ['twitter',    '@kagancapar',               'https://twitter.com/kagancapar'],
-  ['linkedin',   '/in/kagancapar',            'https://www.linkedin.com/in/kagancapar/'],
+  ['github',     'github.com/kagancapar',       'https://github.com/kagancapar'],
+  ['exploit-db', 'exploit-db.com/?author=9507', 'https://www.exploit-db.com/?author=9507'],
+  ['twitter',    '@kagancapar',                 'https://twitter.com/kagancapar'],
+  ['linkedin',   '/in/kagancapar',              'https://www.linkedin.com/in/kagancapar/'],
 ];
 
+// ============ RENDERERS ============
+function renderDisclosures(live) {
+  const data = live || STATIC_DISCLOSURES;
+  const liveTag = live ? ' <span class="com">[<span style="color:var(--green);">●</span> live]</span>' : '';
+  let html = `<span class="info">// .disclosures published by thread T0:</span>${liveTag}\n`;
+  data.forEach((c, i) => {
+    const addr = '0x' + (0x401080 + i * 0x60).toString(16);
+    html += `    <span class="frame-num">[${i}]</span> <span class="addr">${addr}</span>  ` +
+            `<a href="${c.url}" target="_blank"><span class="red">${esc(padR(c.name, 14))}</span></a>  ` +
+            `<span class="com">${esc(padR(c.desc, 21))}</span>  ` +
+            `<span class="star">★ ${padL(c.stars, 3)}</span>\n`;
+  });
+  return html;
+}
+
+function renderShellcode() {
+  let html = `<span class="info">// .shellcode arsenal staged @ rwx page:</span>\n`;
+  for (let i = 0; i < SHELLCODE.length; i += 2) {
+    const a = SHELLCODE[i], b = SHELLCODE[i+1];
+    const left = `    <span class="frame-num">[${i}]</span> <a href="${a[4]}" target="_blank"><span class="name">${esc(padR(a[0], 21))}</span></a> <span class="com">${esc(padR('['+a[1]+'/'+a[2]+']', 9))}</span> <span class="star">★ ${a[3]}</span>`;
+    const right = b ? `     <span class="frame-num">[${i+1}]</span> <a href="${b[4]}" target="_blank"><span class="name">${esc(padR(b[0], 20))}</span></a> <span class="com">${esc(padR('['+b[1]+'/'+b[2]+']', 9))}</span> <span class="star">★ ${b[3]}</span>` : '';
+    html += left + right + '\n';
+  }
+  return html;
+}
+
+function renderContact() {
+  let html = `<span class="info">// .got.plt - reachable references:</span>\n`;
+  for (let i = 0; i < CONTACT.length; i += 2) {
+    const a = CONTACT[i], b = CONTACT[i+1];
+    const left  = `    <span class="lbl">${esc(padR(a[0], 10))}</span> <span class="arrow">→</span> <a href="${a[2]}" target="_blank"><span class="val">${esc(padR(a[1], 27))}</span></a>`;
+    const right = b ? `  <span class="lbl">${esc(padR(b[0], 8))}</span> <span class="arrow">→</span> <a href="${b[2]}" target="_blank"><span class="val">${esc(b[1])}</span></a>` : '';
+    html += left + right + '\n';
+  }
+  return html;
+}
+
+function renderShadow() {
+  return (
+`<span class="name">Shadow bytes around the buggy address:</span>
+  <span class="addr">0x501fffffff80:</span>  <span class="sb-00">00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span>
+  <span class="addr">0x502000000000:</span>  <span class="sb-fa">fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span>
+<span class="arrow">=&gt;</span><span class="addr">0x502000001330:</span>  <span class="sb-fa">fa fa fa fa fa fa</span><span class="hl-byte"><span class="sb-01">[01]</span></span><span class="sb-fa">fa fa fa fa fa fa fa fa fa</span>
+  <span class="addr">0x502000001380:</span>  <span class="sb-fa">fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span>
+
+<span class="name">Shadow byte legend:</span> <span class="sb-00">00</span> addressable · <span class="sb-fa">fa</span> heap redzone · <span class="sb-01">01</span> partially addressable
+`);
+}
+
+function renderBacktrace() {
+  return (
+`    <span class="frame-num">#0</span> <span class="addr">0x55e3a72c0042</span> in <span class="name">whoami</span>             <span class="src">io.cpp:42</span>
+    <span class="frame-num">#1</span> <span class="addr">0x55e3a72c00f8</span> in <span class="name">main</span>               <span class="src">io.cpp:1337</span>
+    <span class="frame-num">#2</span> <span class="addr">0x7ffff7c2dca8</span> in <span class="name">__libc_start_main</span>  <span class="src">csu/libc-start.c:360</span>
+    <span class="frame-num">#3</span> <span class="addr">0x55e3a72bff64</span> in <span class="name">_start</span>             <span class="src">(io+0x2c344)</span>
+`);
+}
+
+function renderHeader() {
+  const cveCount = (liveDisclosures || STATIC_DISCLOSURES).length;
+  return (
+`<span class="src">io.cpp:1337:42:</span> <span class="err">runtime error:</span> identity overflow: <span class="num">1</span> researcher * <span class="num">${cveCount}</span> CVEs * <span class="num">6</span> shellcodes cannot be represented in type 'human'
+<span class="equals">=================================================================</span>
+<span class="equals">==1337==</span><span class="err">ERROR: AddressSanitizer: heap-buffer-overflow</span> on address <span class="addr">0x502000001337</span>
+<span class="name">WRITE of size 65534</span> at <span class="addr">0x502000001337</span> thread <span class="cyan">T0</span> <span class="com">(kagancapar)</span>
+    <span class="frame-num">#0</span> <span class="addr">0x55e3a72c0042</span> in <span class="name">whoami</span>  <span class="src">io.cpp:42</span>
+    <span class="frame-num">#1</span> <span class="addr">0x55e3a72c00f8</span> in <span class="name">main</span>    <span class="src">io.cpp:1337</span>
+
+<span class="addr">0x502000001337</span> <span class="here">is located 0 bytes after 1-byte region</span> <span class="com">[Kağan Çapar — Vulnerability Researcher]</span>
+`);
+}
+
+function renderFooter() {
+  return (
+`<span class="summary-tag">SUMMARY:</span> AddressSanitizer: heap-buffer-overflow in <span class="name">__identity_dump</span> · PoC || GTFO
+<span class="equals">==1337==</span><span class="err">ABORTING</span>
+`);
+}
+
+function runCrash() {
+  appendBlock(renderHeader());
+  appendBlock(renderDisclosures(liveDisclosures));
+  appendBlock('\n' + renderShellcode());
+  appendBlock('\n' + renderShadow());
+  appendBlock('\n' + renderContact());
+  appendBlock('\n' + renderFooter());
+}
+
+async function runCrashAnimated() {
+  // emit by line/section with small delays to feel like a real crash dump
+  const blocks = [
+    { html: renderHeader(),               delay: 90 },
+    { html: renderDisclosures(liveDisclosures), delay: 70 },
+    { html: '\n' + renderShellcode(),     delay: 70 },
+    { html: '\n' + renderShadow(),        delay: 60 },
+    { html: '\n' + renderContact(),       delay: 70 },
+    { html: '\n' + renderFooter(),        delay: 100 },
+  ];
+  for (const b of blocks) {
+    // print one line at a time inside the block
+    const lines = b.html.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i] + (i === lines.length - 1 ? '' : '\n');
+      appendBlock(line);
+      await sleep(b.delay);
+    }
+  }
+}
+
+// ============ COMMANDS ============
 const COMMANDS = {
   help: () => {
-    print(`<span class="info">available commands</span>`);
+    let h = '<span class="info">available commands</span>\n';
     const rows = [
       ['help',          'show this list'],
-      ['whoami / id',   'identity & role'],
-      ['ls',            'list files in ~/'],
-      ['cat <file>',    'read a file (about.txt, README, .bash_history)'],
-      ['cves',          'public CVEs & disclosures'],
+      ['crash / poc',   'rerun the heap-buffer-overflow PoC'],
+      ['whoami / id',   'identity'],
+      ['cves',          'disclosed vulnerabilities'],
       ['shellcode',     'shellcode arsenal'],
-      ['contact',       'how to reach me'],
-      ['banner',        'reprint banner'],
-      ['neofetch',      'system info'],
-      ['date',          'current date'],
+      ['contact',       '.got.plt entries'],
+      ['bt',            'backtrace (stack frames)'],
+      ['shadow',        'shadow byte map'],
+      ['ls / cat',      'list / read files'],
       ['clear / cls',   'clear screen'],
+      ['date / pwd',    'system info'],
       ['exit',          'try it'],
     ];
-    let html = '';
-    for (const [k,v] of rows) {
-      html += `<div class="help-row"><span class="k">${k}</span><span class="dim">${v}</span></div>`;
+    for (const [k, v] of rows) {
+      h += `<div class="help-row"><span class="k">${k}</span><span class="com">${v}</span></div>`;
     }
-    print(html);
+    appendBlock(h);
   },
+  crash: () => runCrash(),
+  poc:   () => runCrash(),
+  run:   () => runCrash(),
 
   whoami: () => {
-    print(`<span class="key">handle</span>  kagancapar`);
-    print(`<span class="key">name</span>    Kağan Çapar`);
-    print(`<span class="key">role</span>    Vulnerability Researcher`);
-    print(`<span class="key">focus</span>   binary exploitation / shellcode dev`);
-    print(`<span class="key">uid</span>     1337(kagancapar) <span class="dim">gid=1337(hackers) groups=27(sudo),0(root)</span>`);
+    appendBlock(
+`<span class="lbl">handle</span>  kagancapar
+<span class="lbl">name</span>    Kağan Çapar
+<span class="lbl">role</span>    Vulnerability Researcher
+<span class="lbl">focus</span>   binary exploitation / shellcode dev
+<span class="lbl">uid</span>     1337(kagancapar) <span class="com">gid=1337(hackers) groups=27(sudo),0(root)</span>
+`);
   },
   id: () => COMMANDS.whoami(),
 
-  ls: (args) => {
-    const long = args.includes('-l') || args.includes('-la') || args.includes('-al');
-    const files = [
-      ['about.txt',     'f', 1247],
-      ['cves.txt',      'x', 4096],
-      ['shellcode.txt', 'x', 4096],
-      ['contact.txt',   'x',  256],
-      ['README',        'f',  118],
-      ['.bash_history', 'f',   97],
-    ];
-    if (long) {
-      let h = '';
-      for (const [name, type, sz] of files) {
-        const perm = type === 'x' ? '-rwxr-xr-x' : '-rw-r--r--';
-        const cls  = type === 'x' ? 'x' : 'f';
-        h += `<div class="line"><span class="dim">${perm} 1 kagan kagan ${String(sz).padStart(5)}</span> <span class="${cls}">${name}</span></div>`;
-      }
-      term.insertAdjacentHTML('beforeend', h);
-    } else {
-      let h = '<div class="ls-grid">';
-      for (const [name,type] of files) {
-        h += `<div class="${type}">${name}</div>`;
-      }
-      h += '</div>';
-      term.insertAdjacentHTML('beforeend', h);
-    }
-    scroll();
-  },
+  cves:        () => appendBlock(renderDisclosures(liveDisclosures)),
+  disclosures: () => COMMANDS.cves(),
+  shellcode:   () => appendBlock(renderShellcode()),
+  arsenal:     () => COMMANDS.shellcode(),
+  contact:     () => appendBlock(renderContact()),
+
+  bt:        () => appendBlock(renderBacktrace()),
+  backtrace: () => COMMANDS.bt(),
+  shadow:    () => appendBlock(renderShadow()),
+  dump:      () => COMMANDS.shadow(),
+
+  ls: () => appendBlock(
+    `<span class="cyan">crash.log</span>  <span class="cyan">identity</span>  <span class="cyan">cves</span>  ` +
+    `<span class="cyan">shellcode</span>  <span class="cyan">contact</span>  <span class="white">README</span>  ` +
+    `<span class="white">.bash_history</span>`),
 
   cat: (args) => {
-    const fn = args[0];
-    if (!fn) { print(`<span class="err">cat: missing operand</span>`); return; }
-    if (fn === '/etc/shadow' || fn === '/etc/passwd') {
-      print(`<span class="err">cat: ${fn}: Permission denied</span>`);
-      print(`<span class="dim">(nice try though)</span>`);
-      return;
-    }
-    if (fn === 'cves.txt')      return COMMANDS.cves();
-    if (fn === 'shellcode.txt') return COMMANDS.shellcode();
-    if (fn === 'contact.txt')   return COMMANDS.contact();
-    if (FILES[fn]) {
-      print(FILES[fn].split('\n').map(escapeHtml).join('<br>'));
-      return;
-    }
-    print(`<span class="err">cat: ${escapeHtml(fn)}: No such file or directory</span>`);
+    const f = args[0];
+    if (!f) return append('<span class="err">cat: missing operand</span>');
+    if (f === 'crash.log')  return runCrash();
+    if (f === 'identity')   return COMMANDS.whoami();
+    if (f === 'cves')       return COMMANDS.cves();
+    if (f === 'shellcode')  return COMMANDS.shellcode();
+    if (f === 'contact')    return COMMANDS.contact();
+    if (f === 'README')     return appendBlock(
+      `kagancapar.github.io\n` +
+      `===================\n` +
+      `Vulnerability researcher. Binary exploitation, shellcode, CVEs.\n` +
+      `Type 'help' for commands. PoC || GTFO.`);
+    if (f === '.bash_history') return appendBlock(
+      `./poc --identify\nwhoami\ncves\nshellcode\nsudo rm -rf /\ngdb -p $(pidof bash)`);
+    if (f === '/etc/shadow' || f === '/etc/passwd')
+      return appendBlock(`<span class="err">cat: ${esc(f)}: Permission denied</span>\n<span class="com">(nice try though)</span>`);
+    append(`<span class="err">cat: ${esc(f)}: No such file or directory</span>`);
   },
 
-  cves: () => {
-    print(`<span class="info">// public disclosures</span>`);
-    for (const c of CVES) {
-      const t = `<div class="line">  <span class="cve">${c.id}</span> <span class="dim">[</span><span class="star">★ ${c.stars}</span><span class="dim">] [${c.lang}]</span></div>`;
-      const d = `<div class="line">    <a href="${c.url}" target="_blank">${c.title}</a></div>`;
-      const x = `<div class="line">    <span class="dim">${c.desc}</span></div>`;
-      term.insertAdjacentHTML('beforeend', t+d+x+'<br>');
-    }
-    scroll();
-  },
-  disclosures: () => COMMANDS.cves(),
+  clear: () => { TERM.innerHTML = ''; },
+  cls:   () => COMMANDS.clear(),
 
-  shellcode: () => {
-    print(`<span class="info">// shellcode arsenal</span>`);
-    let h = '';
-    for (const [name, lang, os, stars, desc] of SHELLCODE) {
-      const url = `https://github.com/kagancapar/${name}`;
-      h += `<div class="line">  <span class="dim">&gt;</span> <a href="${url}" target="_blank">${name}</a> <span class="dim">[</span><span class="key">${lang}</span><span class="dim">/</span><span class="ok">${os}</span><span class="dim">]</span> <span class="star">★${stars}</span></div>`;
-      h += `<div class="line">    <span class="dim">${desc}</span></div>`;
-    }
-    term.insertAdjacentHTML('beforeend', h);
-    scroll();
-  },
+  date:  () => append(new Date().toString()),
+  pwd:   () => append('/home/kagancapar'),
+  uname: () => append('Phrack 2.6.x #1337 SMP x86_64 GNU/Linux'),
+  echo:  (args) => append(esc(args.join(' '))),
 
-  contact: () => {
-    print(`<span class="info">// reach me</span>`);
-    let h = '';
-    for (const [k, v, url] of CONTACT) {
-      h += `<div class="line">  <span class="key">${k.padEnd(10)}</span> <a href="${url}" target="_blank">${v}</a></div>`;
-    }
-    term.insertAdjacentHTML('beforeend', h);
-    scroll();
-  },
+  history: () => HISTORY.forEach((h, i) => append(`  ${String(i+1).padStart(3)}  ${esc(h)}`)),
 
-  banner: () => showBanner(),
-
-  clear: () => { term.innerHTML = ''; },
-  cls:   () => { term.innerHTML = ''; },
-
-  date: () => print(new Date().toString()),
-
-  neofetch: () => {
-    const lines = [
-      `<span class="cyan">    ___       </span> <span class="key">user</span>   : kagancapar`,
-      `<span class="cyan">   /   \\___   </span> <span class="key">host</span>   : kagancapar.github.io`,
-      `<span class="cyan">  / /\\  _ \\  </span> <span class="key">os</span>     : Phrack/2.6.x`,
-      `<span class="cyan"> / /  \\/_/    </span> <span class="key">shell</span>  : /bin/bash 5.x`,
-      `<span class="cyan"> \\ \\__/ \\    </span> <span class="key">term</span>   : xterm-256color`,
-      `<span class="cyan">  \\___\\__/    </span> <span class="key">cves</span>   : 2 disclosed`,
-      `              <span class="key">stars</span>  : 700+ across repos`,
-      `              <span class="key">uptime</span> : since 2017-11-09`,
-    ];
-    for (const l of lines) print(l);
-  },
-
-  exit: () => print(`<span class="err">no escape from the matrix.</span>`),
+  exit:   () => append('<span class="err">no escape from the matrix.</span>'),
   logout: () => COMMANDS.exit(),
 
   sudo: (args) => {
-    if (args.join(' ').includes('rm')) {
-      print(`<span class="err">[sudo] you really thought that would work?</span>`);
-      return;
-    }
-    print(`<span class="dim">[sudo] password for kagancapar:</span>`);
-    setTimeout(() => print(`<span class="err">Sorry, try again.</span>`), 400);
+    if (args.join(' ').includes('rm')) return append('<span class="err">[sudo] you really thought that would work?</span>');
+    appendBlock('<span class="com">[sudo] password for kagancapar:</span>');
+    setTimeout(() => append('<span class="err">Sorry, try again.</span>'), 400);
   },
 
-  rm: () => print(`<span class="err">rm: refusing to remove '/' (use 'sudo rm -rf /' if you dare)</span>`),
+  rm: () => append("<span class=\"err\">rm: refusing to remove '/' (use 'sudo rm -rf /' if you dare)</span>"),
 
-  hack: () => {
-    const seq = ['initiating exploit chain...', 'leaking heap address... 0x7f8e1c003a80',
-      'ROP gadget search ............ 14 found',
-      'pivot stack ............ ok',
-      'shellcode staged @ rwx page',
-      'ret2libc ... <span class="ok">success</span>',
-      '<span class="cyan">just kidding. PoC || GTFO.</span>'];
-    seq.forEach((l, i) => setTimeout(() => print(l), i * 250));
-  },
-
-  echo: (args) => print(escapeHtml(args.join(' '))),
-
-  pwd: () => print('/home/kagancapar'),
-
-  uname: () => print('Phrack 2.6.x #1337 SMP x86_64 GNU/Linux'),
-
-  history: () => {
-    HISTORY.forEach((h,i)=>print(`  ${String(i+1).padStart(3)}  ${escapeHtml(h)}`));
-  },
-
-  man: (args) => {
-    if (args[0] === 'kagancapar') {
-      print(`<span class="info">KAGANCAPAR(1)</span>     User Commands     <span class="info">KAGANCAPAR(1)</span>`);
-      print('');
-      print(`<span class="key">NAME</span>`);
-      print(`       kagancapar - vulnerability researcher`);
-      print('');
-      print(`<span class="key">SYNOPSIS</span>`);
-      print(`       kagancapar [--cves] [--shellcode] [--contact]`);
-      print('');
-      print(`<span class="key">DESCRIPTION</span>`);
-      print(`       Hunts memory corruption bugs in Windows / Linux software.`);
-      print(`       Writes position-independent shellcode. Discloses CVEs.`);
-    } else {
-      print(`<span class="err">No manual entry for ${args[0] || ''}</span>`);
-    }
-  },
+  gdb: () => appendBlock(
+    `GNU gdb (GDB) 13.2 — pwndbg loaded\n` +
+    `<span class="com">Reading symbols from /home/kagancapar/.bin/io ... done.</span>\n` +
+    `Attaching to process <span class="num">1337</span>\n` +
+    `<span class="cyan">pwndbg></span> bt\n` +
+    renderBacktrace()),
 };
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-function execLine(raw) {
-  // print echoed prompt + command
-  const echo = document.createElement('div');
-  echo.className = 'line';
-  echo.innerHTML = `${PS1} <span class="cmd">${escapeHtml(raw)}</span>`;
-  term.appendChild(echo);
-
-  const trimmed = raw.trim();
-  if (!trimmed) { newPrompt(); return; }
-  HISTORY.push(trimmed);
-  histIdx = HISTORY.length;
-
-  const parts = trimmed.split(/\s+/);
-  const cmd = parts[0].toLowerCase();
-  const args = parts.slice(1);
-
-  if (COMMANDS[cmd]) {
-    COMMANDS[cmd](args);
-  } else {
-    print(`<span class="err">${escapeHtml(cmd)}: command not found</span> <span class="dim">(try 'help')</span>`);
-  }
-  newPrompt();
-}
-
-let activePrompt = null;
-let buffer = '';
-
+// ============ PROMPT / INPUT ============
 function newPrompt() {
   const row = document.createElement('div');
-  row.className = 'prompt-line';
-  row.innerHTML = `${PS1} <span class="typed"></span><span class="cursor"></span>`;
-  term.appendChild(row);
+  row.innerHTML = `${PS1_HTML} <span class="typed"></span><span class="cursor"></span>`;
+  TERM.appendChild(row);
   activePrompt = row;
   buffer = '';
-  scroll();
+  lockedInput = false;
+  SCROLL.scrollTop = SCROLL.scrollHeight;
 }
 
 function updateInput() {
@@ -574,32 +405,44 @@ function updateInput() {
   activePrompt.querySelector('.typed').textContent = buffer;
 }
 
+function execLine(raw) {
+  const trimmed = raw.trim();
+  if (!trimmed) { newPrompt(); return; }
+  HISTORY.push(trimmed);
+  histIdx = HISTORY.length;
+  const parts = trimmed.split(/\s+/);
+  const cmd = parts[0].toLowerCase();
+  const args = parts.slice(1);
+  if (COMMANDS[cmd]) {
+    COMMANDS[cmd](args);
+  } else {
+    append(`<span class="err">${esc(cmd)}: command not found</span> <span class="com">(try 'help')</span>`);
+  }
+  newPrompt();
+}
+
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.key === 'l') { e.preventDefault(); COMMANDS.clear(); newPrompt(); return; }
   if (e.ctrlKey && e.key === 'c') {
     e.preventDefault();
     if (activePrompt) {
-      activePrompt.querySelector('.cursor').remove();
-      activePrompt.insertAdjacentHTML('beforeend', '<span class="dim">^C</span>');
+      activePrompt.querySelector('.cursor')?.remove();
+      activePrompt.insertAdjacentHTML('beforeend', '<span class="com">^C</span>');
     }
     activePrompt = null;
     newPrompt();
     return;
   }
-  if (!activePrompt) return;
+  if (lockedInput || !activePrompt) return;
 
   if (e.key === 'Enter') {
     const cmd = buffer;
-    activePrompt.querySelector('.cursor').remove();
+    activePrompt.querySelector('.cursor')?.remove();
     activePrompt = null;
     execLine(cmd);
     return;
   }
-  if (e.key === 'Backspace') {
-    buffer = buffer.slice(0, -1);
-    updateInput();
-    return;
-  }
+  if (e.key === 'Backspace') { buffer = buffer.slice(0, -1); updateInput(); return; }
   if (e.key === 'ArrowUp') {
     e.preventDefault();
     if (HISTORY.length === 0) return;
@@ -622,7 +465,7 @@ document.addEventListener('keydown', (e) => {
     const matches = cmds.filter(c => c.startsWith(buffer));
     if (matches.length === 1) { buffer = matches[0]; updateInput(); }
     else if (matches.length > 1) {
-      print(matches.join('  '));
+      append(matches.join('  '));
       const old = buffer; newPrompt(); buffer = old; updateInput();
     }
     return;
@@ -633,40 +476,59 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-document.addEventListener('click', () => {
-  if (window.getSelection().toString()) return;
-  // keep focus on document; we capture all keys globally
-});
+// ============ LIVE FETCH ============
+const OVERRIDES = {
+  '7-zip-malicious-code-vulnerability': { name: '7-Zip PoC', desc: 'malicious code inj' },
+  'CVE-2022-29072': { desc: '7-Zip privesc' },
+  'CVE-2026-5201': { desc: 'gdk-pixbuf JPEG heap' },
+};
 
-// === BOOT SEQUENCE ===
-async function boot() {
-  showBanner();
-  print(`<span class="dim">Last login: ${new Date().toUTCString()} on tty1</span>`);
-  print(`<span class="dim">type '<span class="info">help</span>' for commands · '<span class="info">ls</span>' for files · '<span class="info">cves</span>' for disclosures</span>`);
-  print('');
-  // auto-run whoami
-  await sleep(250);
-  await typeAndRun('whoami');
+async function fetchLive() {
+  try {
+    const res = await fetch('https://api.github.com/users/kagancapar/repos?per_page=100&sort=created&direction=desc');
+    if (!res.ok) return;
+    const repos = (await res.json()).filter(r => !r.fork);
+    const matches = repos
+      .filter(r => /^CVE-\d{4}-\d+$/i.test(r.name) || /vulnerability|^poc-|-poc$/i.test(r.name))
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    if (matches.length === 0) return;
+    liveDisclosures = matches.map(r => {
+      const ov = OVERRIDES[r.name] || {};
+      return {
+        name:  ov.name || r.name,
+        desc:  ov.desc || (r.description || '').split(/[:\.]/)[0].trim(),
+        stars: r.stargazers_count,
+        url:   r.html_url,
+      };
+    });
+  } catch (e) { /* keep static */ }
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-async function typeAndRun(text) {
+// ============ BOOT ============
+async function typeCommand(text) {
   newPrompt();
+  lockedInput = true;
   for (const ch of text) {
     buffer += ch;
     updateInput();
-    await sleep(40 + Math.random()*40);
+    await sleep(55 + Math.random() * 50);
   }
-  await sleep(180);
-  const cmd = buffer;
-  activePrompt.querySelector('.cursor').remove();
+  await sleep(280);
+  activePrompt.querySelector('.cursor')?.remove();
   activePrompt = null;
-  execLine(cmd);
+  HISTORY.push(text);
+  histIdx = HISTORY.length;
 }
 
-boot();
+(async () => {
+  await fetchLive();
+  await sleep(300);
+  await typeCommand('./poc --identify');
+  await sleep(150);
+  await runCrashAnimated();
+  await sleep(200);
+  newPrompt();
+})();
 </script>
-
 </body>
 </html>
