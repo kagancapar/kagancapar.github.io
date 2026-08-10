@@ -158,6 +158,7 @@ let liveDisclosures = null;
 const STATIC_DISCLOSURES = [
   { name: 'CVE-2026-5201',  desc: 'gdk-pixbuf JPEG heap', stars: 11,  url: 'https://github.com/kagancapar/CVE-2026-5201' },
   { name: 'CVE-2022-29072', desc: '7-Zip privesc',        stars: 673, url: 'https://github.com/kagancapar/CVE-2022-29072' },
+  { name: 'CVE-2021-47881', desc: 'dataSIMS AFDX stack',  stars: 0,   url: 'https://github.com/kagancapar/CVE-2021-47881' },
   { name: '7-Zip PoC',      desc: 'malicious code inj',   stars: 9,   url: 'https://github.com/kagancapar/7-zip-malicious-code-vulnerability' },
 ];
 
@@ -481,6 +482,14 @@ const OVERRIDES = {
   '7-zip-malicious-code-vulnerability': { name: '7-Zip PoC', desc: 'malicious code inj' },
   'CVE-2022-29072': { desc: '7-Zip privesc' },
   'CVE-2026-5201': { desc: 'gdk-pixbuf JPEG heap' },
+  'CVE-2021-47881': { desc: 'dataSIMS AFDX stack' },
+};
+
+// CVE repos first, newest CVE id first; everything else after, newest repo first.
+// (Sorting on created_at alone would float a freshly pushed old CVE to the top.)
+const cveRank = (name) => {
+  const m = /^CVE-(\d{4})-(\d+)$/i.exec(name);
+  return m ? Number(m[1]) * 1e9 + Number(m[2]) : -1;
 };
 
 async function fetchLive() {
@@ -490,7 +499,8 @@ async function fetchLive() {
     const repos = (await res.json()).filter(r => !r.fork);
     const matches = repos
       .filter(r => /^CVE-\d{4}-\d+$/i.test(r.name) || /vulnerability|^poc-|-poc$/i.test(r.name))
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      .sort((a, b) => (cveRank(b.name) - cveRank(a.name))
+                   || (new Date(b.created_at) - new Date(a.created_at)));
     if (matches.length === 0) return;
     liveDisclosures = matches.map(r => {
       const ov = OVERRIDES[r.name] || {};
