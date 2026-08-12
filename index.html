@@ -156,6 +156,7 @@ function appendBlock(html) {
 // ============ DATA ============
 let liveDisclosures = null;
 const STATIC_DISCLOSURES = [
+  { name: 'CVE-2026-54984', desc: 'Windows ICC overflow', stars: 0,   url: 'https://github.com/kagancapar/CVE-2026-54984' },
   { name: 'CVE-2026-5201',  desc: 'gdk-pixbuf JPEG heap', stars: 11,  url: 'https://github.com/kagancapar/CVE-2026-5201' },
   { name: 'CVE-2022-29072', desc: '7-Zip privesc',        stars: 673, url: 'https://github.com/kagancapar/CVE-2022-29072' },
   { name: 'CVE-2021-47881', desc: 'dataSIMS AFDX stack',  stars: 0,   url: 'https://github.com/kagancapar/CVE-2021-47881' },
@@ -483,6 +484,7 @@ const OVERRIDES = {
   'CVE-2022-29072': { desc: '7-Zip privesc' },
   'CVE-2026-5201': { desc: 'gdk-pixbuf JPEG heap' },
   'CVE-2021-47881': { desc: 'dataSIMS AFDX stack' },
+  'CVE-2026-54984': { desc: 'Windows ICC overflow' },
 };
 
 // CVE repos first, newest CVE id first; everything else after, newest repo first.
