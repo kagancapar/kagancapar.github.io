@@ -162,7 +162,6 @@ const STATIC_DISCLOSURES = [
   { name: 'CVE-2022-29072', desc: '7-Zip privesc',        stars: 673, url: 'https://github.com/kagancapar/CVE-2022-29072' },
   { name: 'CVE-2021-47881', desc: 'dataSIMS AFDX stack',  stars: 0,   url: 'https://github.com/kagancapar/CVE-2021-47881' },
   { name: 'CVE-2019-25677', desc: 'WinRAR .lng DoS',      stars: 0,   url: 'https://github.com/kagancapar/CVE-2019-25677' },
-  { name: '7-Zip PoC',      desc: 'malicious code inj',   stars: 9,   url: 'https://github.com/kagancapar/7-zip-malicious-code-vulnerability' },
 ];
 
 const SHELLCODE = [
@@ -482,7 +481,6 @@ document.addEventListener('keydown', (e) => {
 
 // ============ LIVE FETCH ============
 const OVERRIDES = {
-  '7-zip-malicious-code-vulnerability': { name: '7-Zip PoC', desc: 'malicious code inj' },
   'CVE-2022-29072': { desc: '7-Zip privesc' },
   'CVE-2026-5201': { desc: 'gdk-pixbuf JPEG heap' },
   'CVE-2021-47881': { desc: 'dataSIMS AFDX stack' },
@@ -504,7 +502,7 @@ async function fetchLive() {
     if (!res.ok) return;
     const repos = (await res.json()).filter(r => !r.fork);
     const matches = repos
-      .filter(r => /^CVE-\d{4}-\d+$/i.test(r.name) || /vulnerability|^poc-|-poc$/i.test(r.name))
+      .filter(r => /^CVE-\d{4}-\d+$/i.test(r.name))
       .sort((a, b) => (cveRank(b.name) - cveRank(a.name))
                    || (new Date(b.created_at) - new Date(a.created_at)));
     if (matches.length === 0) return;
